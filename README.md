@@ -1,6 +1,6 @@
 # Playing with github actions
 ## 0. Why
-Пробуем создвть свой CI/CD пайплайн для домашнего проекта при помощи Python и GitHub Actions<br/>
+Пробуем создать свой CI/CD пайплайн для домашнего проекта при помощи Python и GitHub Actions<br/>
 
 
 ## 1. Requirements
@@ -14,32 +14,23 @@
 #####Установка серверной части на чистой Ubuntu Server 18.04
 ```shell script
 sudo apt update
-$ git clone https://github.com/dementevda/actions_ci_example.git
-$ cd actions_ci_example/ci_app/
-$ sudo apt install python3-pip
-$ sudo python3 setup.py install
-$ sudo cp ../ci_example.service /etc/systemd/system/ci_example.service
-# dont forget to add token in ci_example.service
-$ sudo systemctl daemon-reload
-$ sudo systemctl enable ci_example.service
-$ sudo systemctl start ci_example.service
+git clone https://github.com/AlexTaynov/actions_ci_example.git
+cd actions_ci_example/ci_app/
+sudo apt install python3-pip
+sudo python3 setup.py install
+sudo cp ../cd_web_server.service /etc/systemd/system/cd_web_server.service
+ # dont forget to add token in cd_web_server.service
+sudo systemctl daemon-reload
+sudo systemctl enable cd_web_server.service
+sudo systemctl start cd_web_server.service
 ```
 
 Проверить то что веб сервер запустился и работает можно с помощью команд
 ```shell script
-sudo systemctl status ci_example.service
+sudo systemctl status cd_web_server.service
 ```
 или
 ```shell script
-curl 0.0.0.0:5000
+curl 0.0.0.0:5555
 ```
-#####В Github аккаунте
-Подключите Actions: https://github.com/features/actions<br/>
-После этого вы можете писать свои действия в .github/workflows и смотреть как они выполняются во вкладке actions
-
-## 3. Usage
-При пуше нового кода в любую ветку будет запущена задача тестирования test_on_push, где будут проведены все тесты указанные в src/tests.py<br/>
-При релизе (создании тэга) будет выполены действия из pub_on_release. А именно проход по всем тестам из src/tests.py. Если тесты будут пройдены успешно, то запустится процесс 
-сборки докер образа, который будет отправлен в docker hub. Если пуш в регистри закончился успешно,
-то будет отправлен вебхух на ранее установленный вебсервер, который и задеплоит наш контейнер
 

@@ -1,10 +1,8 @@
-from setuptools import find_packages
 from setuptools import setup
 
 setup(
-    name='ci_example',
+    name='cd_web_server',
     version='0.0.1',
-    description="Training with GitHub Actions",
     author='dementevda',
     packages=['ci_app'],
     install_requires=['Flask', 'docker'],
@@ -14,6 +12,6 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'ci_example = ci_app.app:main']},
+            'cd_web_server = ci_app.app:main']},
 )
 
