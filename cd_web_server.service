@@ -5,7 +5,7 @@ After=network-online.target
 [Service]
 Type=simple
 RestartSec=3
-ExecStart=/usr/local/bin/ci_example
+ExecStart=/usr/local/bin/cd_web_server
 Environment=CI_TOKEN=#<I generate it with $(openssl rand -hex 20)>
 
 [Install]
