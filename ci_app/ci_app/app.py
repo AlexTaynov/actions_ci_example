@@ -104,7 +104,8 @@ def kill_old_container(container_name: str) -> bool:
     return True
 
 
-def deploy_new_container(image_name: str, container_name: str, ports: dict = None):
+def deploy_new_container(image_name: str, container_name: str, ports: dict = None, environment: dict = None,
+                         mounts: dict = None):
     try:
         # Пул последнего image из docker hub'a
         log.info(f'pull {image_name}, name={container_name}')
@@ -113,7 +114,13 @@ def deploy_new_container(image_name: str, container_name: str, ports: dict = Non
         kill_old_container(container_name)
         log.debug('Old killed')
         # Запуск нового контейнера
-        docker_client.containers.run(image=image_name, name=container_name, detach=True, ports=ports)
+        docker_client.containers.run(image=image_name,
+                                     name=container_name,
+                                     detach=True,
+                                     ports=ports,
+                                     environment=environment,
+                                     mounts=mounts,
+                                     )
     except Exception as e:
         log.error(f'Error while deploy container {container_name}, \n{e}')
         return {'status': False, 'error': str(e)}, 400
@@ -131,7 +138,12 @@ def MainHandler():
         "owner": "gonfff",
         "repository": "ci_example",
         "tag": "v0.0.1",
-         "ports": {"8080": 8080}
+         "ports": {"8080": 8080},
+         "environment": {'TOKEN': '12345'},
+         "mounts": [{ "Type": "bind",
+                     "Source": "/host/path",
+                     "Target": "/container/path",
+                     "ReadOnly": True }]
     }
     :return:
     """
@@ -142,8 +154,10 @@ def MainHandler():
     elif request.method == 'POST':
         log.debug(f'Recieved {request.data}')
         image_name, container_name = get_container_name(request.json)
+        environment = request.json.get('environment') if request.json.get('environment') else None
+        mounts = request.json.get('mounts') if request.json.get('mounts') else None
         ports = request.json.get('ports') if request.json.get('ports') else None
-        result, status = deploy_new_container(image_name, container_name, ports)
+        result, status = deploy_new_container(image_name, container_name, ports, environment, mounts)
         return jsonify(result), status
 
 
@@ -152,7 +166,7 @@ def main():
     if not MY_AUTH_TOKEN:
         log.error('There is no auth token in env')
         sys.exit(1)
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5555)
 
 
 if __name__ == '__main__':
