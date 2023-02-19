@@ -103,8 +103,7 @@ def kill_old_container(container_name: str) -> bool:
     return True
 
 
-def deploy_new_container(image_name: str, container_name: str, ports: dict = None, environment: dict = None,
-                         mounts: dict = None):
+def deploy_new_container(image_name: str, container_name: str, kwargs: dict):
     try:
         # Пул последнего image из docker hub'a
         log.info(f'pull {image_name}, name={container_name}')
@@ -113,14 +112,8 @@ def deploy_new_container(image_name: str, container_name: str, ports: dict = Non
         kill_old_container(container_name)
         log.debug('Old killed')
         # Запуск нового контейнера
-        docker_client.containers.run(image=image_name,
-                                     name=container_name,
-                                     detach=True,
-                                     ports=ports,
-                                     environment=environment,
-                                     mounts=mounts,
-                                     restart_policy={"Name": "always", "MaximumRetryCount": 0}
-                                     )
+        kwargs['name'] = container_name
+        docker_client.containers.run(image_name, **kwargs)
     except Exception as e:
         log.error(f'Error while deploy container {container_name}, \n{e}')
         return {'status': False, 'error': str(e)}, 400
@@ -138,13 +131,12 @@ def MainHandler():
         "owner": "gonfff",
         "repository": "ci_example",
         "tag": "v0.0.1",
-         "ports": {"8080": 8080},
-         "environment": {'TOKEN': '12345'},
-         "mounts": [{ "Type": "bind",
-                     "Source": "/host/path",
-                     "Target": "/container/path",
-                     "ReadOnly": True }],
-         "restart_policy": {'Name': 'on-failure', 'MaximumRetryCount': 4}
+        "kwargs": {
+            "detach": True,
+            "restart_policy": {"Name": "always"},
+            "ports": {"80/tcp": 8080},
+            "environment": {"MYVAR": "myvalue"}
+        }
     }
     :return:
     """
@@ -155,11 +147,8 @@ def MainHandler():
     elif request.method == 'POST':
         log.debug(f'Recieved {request.data}')
         image_name, container_name = get_container_name(request.json)
-        environment = request.json.get('environment') if request.json.get('environment') else None
-        mounts = request.json.get('mounts') if request.json.get('mounts') else None
-        ports = request.json.get('ports') if request.json.get('ports') else None
-        restart_policy = request.json.get('restart_policy') if request.json.get('restart_policy') else None
-        result, status = deploy_new_container(image_name, container_name, ports, environment, mounts, restart_policy)
+        kwargs = request.json.get('kwargs') if request.json.get('kwargs') else None
+        result, status = deploy_new_container(image_name, container_name, kwargs)
         return jsonify(result), status
 
 
