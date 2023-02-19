@@ -104,7 +104,7 @@ def kill_old_container(container_name: str) -> bool:
 
 
 def deploy_new_container(image_name: str, container_name: str, ports: dict = None, environment: dict = None,
-                         mounts: dict = None, restart_policy: dict = None):
+                         mounts: dict = None):
     try:
         # Пул последнего image из docker hub'a
         log.info(f'pull {image_name}, name={container_name}')
@@ -119,7 +119,7 @@ def deploy_new_container(image_name: str, container_name: str, ports: dict = Non
                                      ports=ports,
                                      environment=environment,
                                      mounts=mounts,
-                                     restart_policy=restart_policy
+                                     restart_policy={"Name": "always", "MaximumRetryCount": 0}
                                      )
     except Exception as e:
         log.error(f'Error while deploy container {container_name}, \n{e}')
