@@ -14,4 +14,3 @@ setup(
         'console_scripts': [
             'cd_web_server = ci_app.app:main']},
 )
-

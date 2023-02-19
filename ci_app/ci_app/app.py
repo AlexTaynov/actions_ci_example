@@ -9,7 +9,6 @@ from flask import Flask
 from flask import request, jsonify
 import docker
 
-
 log = logging.getLogger(__name__)
 app = Flask(__name__)
 docker_client = docker.from_env()
@@ -57,9 +56,9 @@ def get_active_containers():
             'short_id': container.short_id,
             'container_name': container.name,
             'image_name': container.image.tags,
-            'created':  container.attrs['Created'],
-            'status':  container.status,
-            'ports':  container.ports,
+            'created': container.attrs['Created'],
+            'status': container.status,
+            'ports': container.ports,
         })
     return result
 
@@ -105,7 +104,7 @@ def kill_old_container(container_name: str) -> bool:
 
 
 def deploy_new_container(image_name: str, container_name: str, ports: dict = None, environment: dict = None,
-                         mounts: dict = None):
+                         mounts: dict = None, restart_policy: dict = None):
     try:
         # Пул последнего image из docker hub'a
         log.info(f'pull {image_name}, name={container_name}')
@@ -120,6 +119,7 @@ def deploy_new_container(image_name: str, container_name: str, ports: dict = Non
                                      ports=ports,
                                      environment=environment,
                                      mounts=mounts,
+                                     restart_policy=restart_policy
                                      )
     except Exception as e:
         log.error(f'Error while deploy container {container_name}, \n{e}')
@@ -143,7 +143,8 @@ def MainHandler():
          "mounts": [{ "Type": "bind",
                      "Source": "/host/path",
                      "Target": "/container/path",
-                     "ReadOnly": True }]
+                     "ReadOnly": True }],
+         "restart_policy": {'Name': 'on-failure', 'MaximumRetryCount': 4}
     }
     :return:
     """
@@ -157,7 +158,8 @@ def MainHandler():
         environment = request.json.get('environment') if request.json.get('environment') else None
         mounts = request.json.get('mounts') if request.json.get('mounts') else None
         ports = request.json.get('ports') if request.json.get('ports') else None
-        result, status = deploy_new_container(image_name, container_name, ports, environment, mounts)
+        restart_policy = request.json.get('restart_policy') if request.json.get('restart_policy') else None
+        result, status = deploy_new_container(image_name, container_name, ports, environment, mounts, restart_policy)
         return jsonify(result), status
 
 
