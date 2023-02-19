@@ -5,7 +5,7 @@ setup(
     version='0.0.1',
     author='dementevda',
     packages=['ci_app'],
-    install_requires=['Flask', 'docker', 'urllib3=1.26.14'],
+    install_requires=['Flask', 'docker', 'urllib3==1.26.14'],
     include_package_data=True,
     keywords=[
         'ci', 'github actions', 'flask', 'docker'
