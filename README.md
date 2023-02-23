@@ -9,7 +9,7 @@
 - Белый IP адрес (проброшеный порт, иной способ получения веб хука)
 - Docker
 ## 2. Get Started
-#####Установка серверной части
+Установка серверной части
 ```shell script
 docker build -t $(IMAGE_NAME) -f Dockerfile .
 docker run --name deploy_server -p 5500:5500 -v /var/run/docker.sock:/var/run/docker.sock -d -e CI_TOKEN=<I generate it with $(openssl rand -hex 20)> --restart=always $(IMAGE_NAME)
