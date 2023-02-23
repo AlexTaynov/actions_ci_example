@@ -157,7 +157,7 @@ def main():
     if not MY_AUTH_TOKEN:
         log.error('There is no auth token in env')
         sys.exit(1)
-    app.run(host='0.0.0.0', port=5555)
+    app.run(host='0.0.0.0', port=5500)
 
 
 if __name__ == '__main__':
