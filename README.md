@@ -17,6 +17,6 @@ docker run --name deploy_server -p 5500:5500 -v /var/run/docker.sock:/var/run/do
 
 Проверить то что веб сервер запустился и работает можно с помощью команды
 ```shell script
-curl 0.0.0.0:5555
+curl 0.0.0.0:5500
 ```
 

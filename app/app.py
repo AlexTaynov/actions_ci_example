@@ -105,12 +105,18 @@ def kill_old_container(container_name: str) -> bool:
 
 def deploy_new_container(image_name: str, container_name: str, kwargs: dict):
     try:
+        kill_old_container(container_name)
+        log.debug('Old killed')
+        # Удаление старых докер образов с таким же именем
+        for image in docker_client.images.list():
+            if image_name in image.tags[0]:
+                log.info(image.id)
+                log.info(f"Deleting image: {image.tags[0]}")
+                docker_client.images.remove(image.id)
         # Пул последнего image из docker hub'a
         log.info(f'pull {image_name}, name={container_name}')
         docker_client.images.pull(image_name)
         log.debug('Success')
-        kill_old_container(container_name)
-        log.debug('Old killed')
         # Запуск нового контейнера
         kwargs['name'] = container_name
         docker_client.containers.run(image_name, **kwargs)
