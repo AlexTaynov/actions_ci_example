@@ -109,6 +109,8 @@ def deploy_new_container(image_name: str, container_name: str, kwargs: dict):
         log.debug('Old killed')
         # Удаление старых докер образов с таким же именем
         for image in docker_client.images.list():
+            if len(image.tags) == 0:
+                continue
             if image_name in image.tags[0]:
                 log.info(image.id)
                 log.info(f"Deleting image: {image.tags[0]}")
